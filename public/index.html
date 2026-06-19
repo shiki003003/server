@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slnk.jp - URL短縮サービス</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #0056b3; }
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+            display: none;
+            word-break: break-all;
+        }
+        .result a { color: #007bff; font-weight: bold; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>slnk.jp</h1>
+    <p>長いURLをスッキリ短縮します</p>
+    
+    <input type="url" id="longUrl" placeholder="https://example.com/very/long/url" required>
+    <button onclick="shortenUrl()">短縮する</button>
+
+    <div class="result" id="resultBox">
+        <p>短縮URLが完成しました：</p>
+        <a id="shortLink" href="#" target="_blank"></a>
+    </div>
+</div>
+
+<script>
+    async function shortenUrl() {
+        const longUrl = document.getElementById('longUrl').value;
+        const resultBox = document.getElementById('resultBox');
+        const shortLink = document.getElementById('shortLink');
+
+        if (!longUrl) {
+            alert('URLを入力してください');
+            return;
+        }
+
+        try {
+            // さっきPowerShellでテストしたAPIを呼び出す
+            const response = await fetch('/api/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // 結果を表示
+                shortLink.href = data.short_url;
+                shortLink.innerText = data.short_url;
+                resultBox.style.display = 'block';
+            } else {
+                alert('エラー: ' + data.error);
+            }
+        } catch (error) {
+            alert('サーバーとの通信に失敗しました');
+        }
+    }
+</script>
+
+</body>
+</html>
